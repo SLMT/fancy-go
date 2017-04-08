@@ -20,7 +20,7 @@ const BORDER_RADIUS: f64 = 2.0;
 
 pub struct Board {
     position: [f64; 2],
-    stones: Vec<Stone>
+    stones: Vec<Vec<Option<Stone>>>
 }
 
 impl Board {
@@ -30,8 +30,17 @@ impl Board {
             stones: Vec::new()
         };
 
-        board.stones.push(Stone::new(pos_x, pos_y, StoneType::WHITE));
-        board.stones.push(Stone::new(pos_x + POINT_SPACING, pos_y, StoneType::BLACK));
+        // Create a (NUM_OF_POINTS x NUM_OF_POINTS) array
+        for sx in 0 .. NUM_OF_POINTS {
+            board.stones.push(Vec::new());
+            for sy in 0 .. NUM_OF_POINTS {
+                board.stones[sx].push(None);
+            }
+        }
+
+        // XXX: Debug
+        board.stones[0][0] = Some(Stone::new(pos_x, pos_y, StoneType::WHITE));
+        board.stones[0][1] = Some(Stone::new(pos_x + POINT_SPACING, pos_y, StoneType::BLACK));
 
         board
     }
@@ -42,8 +51,12 @@ impl Board {
         self.draw_boarders(con, g);
         self.draw_star_points(con, g);
 
-        for stone in &self.stones {
-            stone.draw(con, g);
+        for sx in 0 .. NUM_OF_POINTS {
+            for sy in 0 .. NUM_OF_POINTS {
+                if let Some(ref stone) = self.stones[sx][sy] {
+                    stone.draw(con, g);
+                }
+            }
         }
     }
 
