@@ -14,6 +14,10 @@ const SHADOW_OFFSET: f64 = 8.0;
 const SHADOW_COLOR: Color = [0.18, 0.21, 0.34, 1.0];
 const STAR_POINT_RADIUS: f64 = 10.0;
 
+const BORDER1_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
+const BORDER2_COLOR: Color = [0.54, 0.54, 0.81, 1.0];
+const BORDER_RADIUS: f64 = 2.0;
+
 pub struct Board {
     position: [f64; 2],
     stones: Vec<Stone>
@@ -35,6 +39,7 @@ impl Board {
     pub fn draw(&self, con: &Context, g: &mut G2d) {
         self.draw_line_shadows(con, g);
         self.draw_lines(con, g);
+        self.draw_boarders(con, g);
         self.draw_star_points(con, g);
 
         for stone in &self.stones {
@@ -102,6 +107,29 @@ impl Board {
             let w = STAR_POINT_RADIUS;
             let h = STAR_POINT_RADIUS;
             ellipse(LINE_COLOR, [x, y, w, h], con.transform, g);
+        }
+    }
+
+    fn draw_boarders(&self, con: &Context, g: &mut G2d) {
+        // Four conner points
+        let left_upper = [self.position[0] - 2.0, self.position[1] - 2.0];
+        let left_lower = [self.position[0] - 2.0, self.position[1] + LINE_LENGTH + 2.0];
+        let right_upper = [self.position[0] + LINE_LENGTH + 2.0, self.position[1] - 2.0];
+        let right_lower = [self.position[0] + LINE_LENGTH + 2.0, self.position[1] + LINE_LENGTH + 2.0];
+
+        // Four border lines
+        for (radius, color) in vec![(BORDER_RADIUS + 2.0, BORDER1_COLOR), (BORDER_RADIUS, BORDER2_COLOR)] {
+            let lines: Vec<[f64; 4]> = vec![
+                [left_upper[0], left_upper[1] - radius, left_lower[0], left_lower[1] + radius], // left
+                [left_upper[0] - radius, left_upper[1], right_upper[0] + radius, right_upper[1]], // upper
+                [right_upper[0], right_upper[1] - radius, right_lower[0], right_lower[1] + radius], // right
+                [left_lower[0] - radius, left_lower[1], right_lower[0] + radius, right_lower[1]]  // lower
+            ];
+
+            // Draw them
+            for l in lines {
+                line(color, radius, l.clone(), con.transform, g);
+            }
         }
     }
 }
