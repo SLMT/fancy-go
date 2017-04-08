@@ -1,4 +1,5 @@
 extern crate piston_window;
+extern crate glutin;
 
 mod board;
 mod stone;
@@ -6,6 +7,7 @@ mod stone;
 use piston_window::{PistonWindow, WindowSettings, Button, PressEvent, UpdateEvent};
 use piston_window::clear;
 use piston_window::types::Color;
+use glutin::MouseCursor;
 
 use board::Board;
 
@@ -20,6 +22,8 @@ fn main() {
             .exit_on_esc(true).build().unwrap();
 
     let b = Board::new(50.0, 50.0);
+
+    window.window.window.set_cursor(MouseCursor::Hand);
 
     // Event loop
     while let Some(event) = window.next() {
