@@ -3,7 +3,7 @@ use piston_window::{Context, G2d};
 use piston_window::types::Color;
 use piston_window::{line, ellipse};
 
-use stone::Stone;
+use stone::{Stone, StoneType};
 
 const NUM_OF_POINTS: usize = 19;
 const POINT_SPACING: f64 = 50.0;
@@ -16,22 +16,30 @@ const STAR_POINT_RADIUS: f64 = 10.0;
 
 pub struct Board {
     position: [f64; 2],
-    stone: Stone
+    stones: Vec<Stone>
 }
 
 impl Board {
     pub fn new(pos_x: f64, pos_y: f64) -> Board {
-        Board {
+        let mut board = Board {
             position: [pos_x, pos_y],
-            stone: Stone::new(pos_x, pos_y)
-        }
+            stones: Vec::new()
+        };
+
+        board.stones.push(Stone::new(pos_x, pos_y, StoneType::WHITE));
+        board.stones.push(Stone::new(pos_x + POINT_SPACING, pos_y, StoneType::BLACK));
+
+        board
     }
 
     pub fn draw(&self, con: &Context, g: &mut G2d) {
         self.draw_line_shadows(con, g);
         self.draw_lines(con, g);
         self.draw_star_points(con, g);
-        self.stone.draw(con, g);
+
+        for stone in &self.stones {
+            stone.draw(con, g);
+        }
     }
 
     fn draw_lines(&self, con: &Context, g: &mut G2d) {
