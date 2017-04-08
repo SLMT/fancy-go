@@ -1,6 +1,7 @@
 extern crate piston_window;
 
 mod board;
+mod stone;
 
 use piston_window::{PistonWindow, WindowSettings, Button, PressEvent, UpdateEvent};
 use piston_window::clear;
