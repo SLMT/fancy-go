@@ -134,9 +134,10 @@ impl Hexagon {
 }
 
 const ANIMATION_RADIUS: f64 = 300.0;
-const HEX_AIMMING_TIME: f64 = 0.3;
-const HEX_SHOWING_TIME: f64 = 2.0;
-const ANIMATION_TIME: f64 = 2.0;
+const AIMMING_TIME: f64 = 0.3;
+const PHASE1_TIME: f64 = 2.0;
+const AIMMING_HEX_RADIUS: f64 = 0.5;
+const AIMMING_LINE_RADIUS: f64 = 2.0;
 const LIGHT_GREEN_COLOR: Color = [0.19, 0.98, 0.53, 1.0];
 
 struct Animation {
@@ -156,23 +157,46 @@ impl Animation {
 
     fn draw(&self, con: &Context, g: &mut G2d) {
         let et = self.elapsed_time;
+        let c_x = self.center[0];
+        let c_y = self.center[1];
+        let r = ANIMATION_RADIUS;
 
-        // Draw aiming hex
-        if et < HEX_SHOWING_TIME {
-            let hex_radius = ANIMATION_RADIUS * (1.0 - et / HEX_AIMMING_TIME);
+        // Draw aimming
+        if et < PHASE1_TIME {
+            // Scale
+            let scale = (1.0 - et / AIMMING_TIME);
+
+            // Outter Hexagon
+            let hex_radius = r * scale;
             if hex_radius > POINT_SPACING {
                 let hex = Hexagon::new(self.center, hex_radius, LIGHT_GREEN_COLOR);
-                hex.draw_lined(1.0, con, g)
+                hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
             } else {
                 let hex = Hexagon::new(self.center, POINT_SPACING, LIGHT_GREEN_COLOR);
-                hex.draw_lined(1.0, con, g)
+                hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
+            }
+
+            // Aimming lines
+            let aim_line_r = r * 0.5;
+            let mut to_center = aim_line_r * scale;
+            if to_center < POINT_SPACING * 0.5 {
+                to_center = POINT_SPACING * 0.5;
+            }
+            let lines = [
+                [c_x - aim_line_r, c_y, c_x - to_center, c_y],
+                [c_x + aim_line_r, c_y, c_x + to_center, c_y],
+                [c_x, c_y - aim_line_r, c_x, c_y - to_center],
+                [c_x, c_y + aim_line_r, c_x, c_y + to_center]
+            ];
+            for i in 0 .. 4 {
+                line(LIGHT_GREEN_COLOR, AIMMING_LINE_RADIUS, lines[i], con.transform, g);
             }
         }
     }
 
     fn update(&mut self, delta: f64) {
         self.elapsed_time += delta;
-        if self.elapsed_time >= ANIMATION_TIME {
+        if self.elapsed_time >= PHASE1_TIME {
             self.finished = true;
         }
     }
