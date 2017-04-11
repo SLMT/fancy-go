@@ -5,44 +5,48 @@ use piston_window::{Context, G2d};
 use piston_window::types::Color;
 use piston_window::polygon;
 
-const RADIUS: f64 = 21.0;
-const BLACK_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
-const PURPLE_COLOR: Color = [0.65, 0.56, 0.97, 0.3];
-const WHITE_PURPLE_COLOR: Color = [0.88, 0.79, 0.95, 1.0];
-const WHITE_COLOR: Color = [1.0, 1.0, 1.0, 1.0];
+use settings::{STONE_RADIUS, SHADOW_OFFSET, SHADOW_COLOR};
+use settings::{BLACK_COLOR, PURPLE_COLOR, WHITE_PURPLE_COLOR, WHITE_COLOR};
 
 pub enum StoneType {
     BLACK, WHITE
 }
 
 pub struct Stone {
+    shadow: Hexagon,
     hexes: Vec<Hexagon>
 }
 
 impl Stone {
     pub fn new(pos_x: f64, pos_y: f64, stone_type: StoneType) -> Stone {
         let center = [pos_x, pos_y];
+        let shadow_center = [pos_x + SHADOW_OFFSET, pos_y + SHADOW_OFFSET];
         let mut hexes: Vec<Hexagon> = Vec::new();
 
         match stone_type {
             StoneType::BLACK => {
-                hexes.push(Hexagon::new(center, RADIUS, PURPLE_COLOR));
-                hexes.push(Hexagon::new(center, RADIUS - 5.0, BLACK_COLOR));
-                hexes.push(Hexagon::new(center, RADIUS - 6.0, WHITE_PURPLE_COLOR));
-                hexes.push(Hexagon::new(center, RADIUS - 8.0, BLACK_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS, PURPLE_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 5.0, BLACK_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 6.0, WHITE_PURPLE_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 8.0, BLACK_COLOR));
             },
             StoneType::WHITE => {
-                hexes.push(Hexagon::new(center, RADIUS, PURPLE_COLOR));
-                hexes.push(Hexagon::new(center, RADIUS - 2.0, BLACK_COLOR));
-                hexes.push(Hexagon::new(center, RADIUS - 3.0, WHITE_PURPLE_COLOR));
-                hexes.push(Hexagon::new(center, RADIUS - 6.0, BLACK_COLOR));
-                hexes.push(Hexagon::new(center, RADIUS - 9.0, WHITE_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS, PURPLE_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 2.0, BLACK_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 3.0, WHITE_PURPLE_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 6.0, BLACK_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 9.0, WHITE_COLOR));
             }
         }
 
         Stone {
+            shadow: Hexagon::new(shadow_center, STONE_RADIUS, SHADOW_COLOR),
             hexes: hexes
         }
+    }
+
+    pub fn draw_shadow(&self, con: &Context, g: &mut G2d) {
+        self.shadow.draw(con, g);
     }
 
     pub fn draw(&self, con: &Context, g: &mut G2d) {

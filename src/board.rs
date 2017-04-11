@@ -1,22 +1,10 @@
 
 use piston_window::{Context, G2d};
-use piston_window::types::Color;
 use piston_window::{line, ellipse};
 
 use stone::{Stone, StoneType};
-
-const NUM_OF_POINTS: usize = 19;
-const POINT_SPACING: f64 = 50.0;
-const LINE_RADIUS: f64 = 1.0;
-const LINE_LENGTH: f64 = ((NUM_OF_POINTS - 1) as f64) * POINT_SPACING;
-const LINE_COLOR: Color = [0.43, 0.57, 0.76, 1.0];
-const SHADOW_OFFSET: f64 = 8.0;
-const SHADOW_COLOR: Color = [0.18, 0.21, 0.34, 1.0];
-const STAR_POINT_RADIUS: f64 = 10.0;
-
-const BORDER1_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
-const BORDER2_COLOR: Color = [0.54, 0.54, 0.81, 1.0];
-const BORDER_RADIUS: f64 = 2.0;
+use settings::{NUM_OF_POINTS, POINT_SPACING, LINE_RADIUS, LINE_LENGTH, STAR_POINT_RADIUS, SHADOW_OFFSET};
+use settings::{LINE_COLOR, SHADOW_COLOR, BORDER1_COLOR, BORDER2_COLOR, BORDER_RADIUS};
 
 pub struct Board {
     position: [f64; 2],
@@ -33,7 +21,7 @@ impl Board {
         // Create a (NUM_OF_POINTS x NUM_OF_POINTS) array
         for sx in 0 .. NUM_OF_POINTS {
             board.stones.push(Vec::new());
-            for sy in 0 .. NUM_OF_POINTS {
+            for _ in 0 .. NUM_OF_POINTS {
                 board.stones[sx].push(None);
             }
         }
@@ -47,6 +35,15 @@ impl Board {
 
     pub fn draw(&self, con: &Context, g: &mut G2d) {
         self.draw_line_shadows(con, g);
+
+        for sx in 0 .. NUM_OF_POINTS {
+            for sy in 0 .. NUM_OF_POINTS {
+                if let Some(ref stone) = self.stones[sx][sy] {
+                    stone.draw_shadow(con, g);
+                }
+            }
+        }
+
         self.draw_lines(con, g);
         self.draw_boarders(con, g);
         self.draw_star_points(con, g);

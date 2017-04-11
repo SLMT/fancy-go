@@ -3,6 +3,7 @@ extern crate glutin;
 
 mod board;
 mod stone;
+mod settings;
 
 use piston_window::{PistonWindow, WindowSettings, Button, PressEvent, UpdateEvent};
 use piston_window::clear;
