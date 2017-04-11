@@ -30,15 +30,15 @@ impl Stone {
             StoneType::BLACK => {
                 hexes.push(Hexagon::new(center, STONE_RADIUS, PURPLE_COLOR));
                 hexes.push(Hexagon::new(center, STONE_RADIUS - 5.0, BLACK_COLOR));
-                hexes.push(Hexagon::new(center, STONE_RADIUS - 6.0, WHITE_PURPLE_COLOR));
-                hexes.push(Hexagon::new(center, STONE_RADIUS - 8.0, BLACK_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 6.5, WHITE_PURPLE_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 9.0, BLACK_COLOR));
             },
             StoneType::WHITE => {
                 hexes.push(Hexagon::new(center, STONE_RADIUS, PURPLE_COLOR));
                 hexes.push(Hexagon::new(center, STONE_RADIUS - 2.0, BLACK_COLOR));
-                hexes.push(Hexagon::new(center, STONE_RADIUS - 3.0, WHITE_PURPLE_COLOR));
-                hexes.push(Hexagon::new(center, STONE_RADIUS - 6.0, BLACK_COLOR));
-                hexes.push(Hexagon::new(center, STONE_RADIUS - 9.0, WHITE_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 3.5, WHITE_PURPLE_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 7.0, BLACK_COLOR));
+                hexes.push(Hexagon::new(center, STONE_RADIUS - 10.0, WHITE_COLOR));
             }
         }
 
@@ -135,7 +135,7 @@ impl Hexagon {
 
 const ANIMATION_RADIUS: f64 = 300.0;
 const AIMMING_TIME: f64 = 0.3;
-const PHASE1_TIME: f64 = 2.0;
+const PHASE1_TIME: f64 = 1.0;
 const AIMMING_HEX_RADIUS: f64 = 0.5;
 const AIMMING_LINE_RADIUS: f64 = 2.0;
 const LIGHT_GREEN_COLOR: Color = [0.19, 0.98, 0.53, 1.0];
@@ -164,7 +164,7 @@ impl Animation {
         // Draw aimming
         if et < PHASE1_TIME {
             // Scale
-            let scale = (1.0 - et / AIMMING_TIME);
+            let scale = 1.0 - et / AIMMING_TIME;
 
             // Outter Hexagon
             let hex_radius = r * scale;
