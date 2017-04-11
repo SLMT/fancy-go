@@ -30,6 +30,10 @@ impl Game {
         self.board.is_placeable(pos_x, pos_y)
     }
 
+    pub fn update(&mut self, delta: f64) {
+        self.board.update(delta);
+    }
+
     pub fn draw(&self, con: &Context, g: &mut G2d) {
         self.board.draw(con, g);
     }

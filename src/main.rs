@@ -61,8 +61,8 @@ fn main() {
         });
 
         // Update the state of the game
-        event.update(|arg| {
-            // TODO
-        });
+        if let Some(arg) = event.update_args() {
+            game.update(arg.dt);
+        }
     }
 }

@@ -56,6 +56,16 @@ impl Board {
         }
     }
 
+    pub fn update(&mut self, delta: f64) {
+        for sx in 0 .. NUM_OF_POINTS {
+            for sy in 0 .. NUM_OF_POINTS {
+                if let Some(ref mut stone) = self.stones[sx][sy] {
+                    stone.update(delta);
+                }
+            }
+        }
+    }
+
     pub fn draw(&self, con: &Context, g: &mut G2d) {
         self.draw_line_shadows(con, g);
 

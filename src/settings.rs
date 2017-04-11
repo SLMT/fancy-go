@@ -13,7 +13,7 @@ pub const PALCEABLE_RADIUS: f64 = 10.0;
 pub const SHADOW_OFFSET: f64 = 8.0;
 
 // Stone
-pub const STONE_RADIUS: f64 = 21.0;
+pub const STONE_RADIUS: f64 = 25.0;
 
 // Colors
 pub const LINE_COLOR: Color = [0.43, 0.57, 0.76, 1.0];
