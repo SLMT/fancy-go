@@ -7,6 +7,7 @@ pub const POINT_SPACING: f64 = 50.0;
 pub const LINE_RADIUS: f64 = 1.0;
 pub const LINE_LENGTH: f64 = ((NUM_OF_POINTS - 1) as f64) * POINT_SPACING;
 pub const STAR_POINT_RADIUS: f64 = 10.0;
+pub const PALCEABLE_RADIUS: f64 = 10.0;
 
 // Shadow
 pub const SHADOW_OFFSET: f64 = 8.0;

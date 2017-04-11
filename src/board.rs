@@ -3,8 +3,11 @@ use piston_window::{Context, G2d};
 use piston_window::{line, ellipse};
 
 use stone::{Stone, StoneType};
-use settings::{NUM_OF_POINTS, POINT_SPACING, LINE_RADIUS, LINE_LENGTH, STAR_POINT_RADIUS, SHADOW_OFFSET};
-use settings::{LINE_COLOR, SHADOW_COLOR, BORDER1_COLOR, BORDER2_COLOR, BORDER_RADIUS};
+use settings::{
+    NUM_OF_POINTS, POINT_SPACING, LINE_RADIUS, LINE_LENGTH,
+    STAR_POINT_RADIUS, SHADOW_OFFSET, PALCEABLE_RADIUS,
+    LINE_COLOR, SHADOW_COLOR, BORDER1_COLOR, BORDER2_COLOR, BORDER_RADIUS
+};
 
 pub struct Board {
     position: [f64; 2],
@@ -27,10 +30,30 @@ impl Board {
         }
 
         // XXX: Debug
-        board.stones[0][0] = Some(Stone::new(pos_x, pos_y, StoneType::WHITE));
-        board.stones[0][1] = Some(Stone::new(pos_x + POINT_SPACING, pos_y, StoneType::BLACK));
+        // board.stones[0][0] = Some(Stone::new(pos_x, pos_y, StoneType::WHITE));
+        // board.stones[0][1] = Some(Stone::new(pos_x + POINT_SPACING, pos_y, StoneType::BLACK));
 
         board
+    }
+
+    pub fn place_a_stone(&mut self, pos_x: f64, pos_y: f64, stone_type: StoneType) {
+        let point = find_the_closet_point_2d(pos_x - self.position[0], pos_y - self.position[1]);
+        if let Some((px, py)) = point {
+            if self.stones[px][py].is_none() {
+                let (pos_x, pos_y) = to_2d_coordinates(px, py);
+                self.stones[px][py] = Some(Stone::new(
+                    pos_x + self.position[0], pos_y + self.position[1], stone_type));
+            }
+        }
+    }
+
+    pub fn is_placeable(&self, pos_x: f64, pos_y: f64) -> bool {
+        let point = find_the_closet_point_2d(pos_x - self.position[0], pos_y - self.position[1]);
+        if let Some((px, py)) = point {
+            self.stones[px][py].is_none()
+        } else {
+            false
+        }
     }
 
     pub fn draw(&self, con: &Context, g: &mut G2d) {
@@ -140,6 +163,48 @@ impl Board {
             for l in lines {
                 line(color, radius, l.clone(), con.transform, g);
             }
+        }
+    }
+}
+
+fn to_2d_coordinates(point_x: usize, point_y: usize) -> (f64, f64) {
+    (point_x as f64 * POINT_SPACING, point_y as f64 * POINT_SPACING)
+}
+
+fn find_the_closet_point_2d(relative_pos_x: f64, relative_pos_y: f64) -> Option<(usize, usize)> {
+    let point_pos_x = find_the_closet_point(relative_pos_x);
+    if let Some(px) = point_pos_x {
+        let point_pos_y = find_the_closet_point(relative_pos_y);
+        if let Some(py) = point_pos_y {
+            if px < NUM_OF_POINTS && py < NUM_OF_POINTS {
+                Some((px, py))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    } else {
+        None
+    }
+}
+
+fn find_the_closet_point(relative_pos: f64) -> Option<usize> {
+    // Check the lower bound
+    if relative_pos < - PALCEABLE_RADIUS {
+        None
+    } else if relative_pos < PALCEABLE_RADIUS {
+        Some(0)
+    } else {
+        let quotient = (relative_pos / POINT_SPACING).floor() as usize;
+        let remainder = relative_pos % POINT_SPACING;
+
+        if remainder <= PALCEABLE_RADIUS {
+            Some(quotient)
+        } else if remainder >= POINT_SPACING - PALCEABLE_RADIUS {
+            Some(quotient + 1)
+        } else {
+            None
         }
     }
 }

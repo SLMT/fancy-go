@@ -5,12 +5,14 @@ mod board;
 mod stone;
 mod settings;
 
-use piston_window::{PistonWindow, WindowSettings, Button, PressEvent, UpdateEvent};
+use piston_window::{PistonWindow, WindowSettings, Button, PressEvent, UpdateEvent, MouseCursorEvent};
+use piston_window::mouse::MouseButton;
 use piston_window::clear;
 use piston_window::types::Color;
 use glutin::MouseCursor;
 
 use board::Board;
+use stone::StoneType;
 
 const WINDOW_TITLE: &'static str = "Fancy Go";
 const WINDOW_SIZE: [u32; 2] = [1000, 1000];
@@ -22,23 +24,39 @@ fn main() {
     let mut window: PistonWindow = WindowSettings::new(WINDOW_TITLE, WINDOW_SIZE)
             .exit_on_esc(true).build().unwrap();
 
-    let b = Board::new(50.0, 50.0);
+    let mut board = Board::new(50.0, 50.0);
 
-    window.window.window.set_cursor(MouseCursor::Hand);
+    // Mouse position
+    let (mut mouse_x, mut mouse_y): (f64, f64) = (0.0, 0.0);
 
     // Event loop
     while let Some(event) = window.next() {
 
-        // Catch the events of the keyboard
-        if let Some(Button::Keyboard(key)) = event.press_args() {
-            // TODO
+        // Press Event
+        if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
+            // println!("Pressed at {}, {}", mouse_x, mouse_y);
+            if board.is_placeable(mouse_x, mouse_y) {
+                board.place_a_stone(mouse_x, mouse_y, StoneType::WHITE);
+            }
+        }
+
+        // Mouse Moving Event
+        if let Some(mouse_pos) = event.mouse_cursor_args() {
+            mouse_x = mouse_pos[0];
+            mouse_y = mouse_pos[1];
+
+            if board.is_placeable(mouse_x, mouse_y) {
+                window.window.window.set_cursor(MouseCursor::Hand);
+            } else {
+                window.window.window.set_cursor(MouseCursor::Default);
+            }
         }
 
         // Draw all of them
         window.draw_2d(&event, |c, g| {
             clear(BACK_COLOR, g);
 
-            b.draw(&c, g);
+            board.draw(&c, g);
         });
 
         // Update the state of the game
