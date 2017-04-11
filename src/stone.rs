@@ -8,6 +8,7 @@ use piston_window::polygon;
 use settings::{STONE_RADIUS, SHADOW_OFFSET, SHADOW_COLOR};
 use settings::{BLACK_COLOR, PURPLE_COLOR, WHITE_PURPLE_COLOR, WHITE_COLOR};
 
+#[derive(Clone, Copy)]
 pub enum StoneType {
     BLACK, WHITE
 }
