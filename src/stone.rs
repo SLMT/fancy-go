@@ -157,9 +157,6 @@ impl Animation {
 
     fn draw(&self, con: &Context, g: &mut G2d) {
         let et = self.elapsed_time;
-        let c_x = self.center[0];
-        let c_y = self.center[1];
-        let r = ANIMATION_RADIUS;
 
         // Draw aimming
         if et < PHASE1_TIME {
@@ -167,30 +164,41 @@ impl Animation {
             let scale = 1.0 - et / AIMMING_TIME;
 
             // Outter Hexagon
-            let hex_radius = r * scale;
-            if hex_radius > POINT_SPACING {
-                let hex = Hexagon::new(self.center, hex_radius, LIGHT_GREEN_COLOR);
-                hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
-            } else {
-                let hex = Hexagon::new(self.center, POINT_SPACING, LIGHT_GREEN_COLOR);
-                hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
-            }
+            self.draw_outter_hexagon(scale, con, g);
 
             // Aimming lines
-            let aim_line_r = r * 0.5;
-            let mut to_center = aim_line_r * scale;
-            if to_center < POINT_SPACING * 0.5 {
-                to_center = POINT_SPACING * 0.5;
-            }
-            let lines = [
-                [c_x - aim_line_r, c_y, c_x - to_center, c_y],
-                [c_x + aim_line_r, c_y, c_x + to_center, c_y],
-                [c_x, c_y - aim_line_r, c_x, c_y - to_center],
-                [c_x, c_y + aim_line_r, c_x, c_y + to_center]
-            ];
-            for i in 0 .. 4 {
-                line(LIGHT_GREEN_COLOR, AIMMING_LINE_RADIUS, lines[i], con.transform, g);
-            }
+            self.draw_aimming_lines(scale, con, g);
+        }
+    }
+
+    fn draw_outter_hexagon(&self, scale: f64, con: &Context, g: &mut G2d) {
+        let hex_radius = ANIMATION_RADIUS * scale;
+        if hex_radius > POINT_SPACING {
+            let hex = Hexagon::new(self.center, hex_radius, LIGHT_GREEN_COLOR);
+            hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
+        } else {
+            let hex = Hexagon::new(self.center, POINT_SPACING, LIGHT_GREEN_COLOR);
+            hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
+        }
+    }
+
+    fn draw_aimming_lines(&self, scale: f64, con: &Context, g: &mut G2d) {
+        let r = ANIMATION_RADIUS;
+        let c_x = self.center[0];
+        let c_y = self.center[1];
+        let aim_line_r = r * 0.5;
+        let mut to_center = aim_line_r * scale;
+        if to_center < POINT_SPACING * 0.5 {
+            to_center = POINT_SPACING * 0.5;
+        }
+        let lines = [
+            [c_x - aim_line_r, c_y, c_x - to_center, c_y],
+            [c_x + aim_line_r, c_y, c_x + to_center, c_y],
+            [c_x, c_y - aim_line_r, c_x, c_y - to_center],
+            [c_x, c_y + aim_line_r, c_x, c_y + to_center]
+        ];
+        for i in 0 .. 4 {
+            line(LIGHT_GREEN_COLOR, AIMMING_LINE_RADIUS, lines[i], con.transform, g);
         }
     }
 
