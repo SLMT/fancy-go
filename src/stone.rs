@@ -163,6 +163,7 @@ const PHASE1_TIME: f64 = 1.0;
 const AIMMING_HEX_RADIUS: f64 = 0.5;
 const AIMMING_LINE_RADIUS: f64 = 1.5;
 const LIGHT_GREEN_COLOR: Color = [0.19, 0.98, 0.53, 1.0];
+const INNER_HEX_FLASH_PERIOD: f64 = 0.1;
 
 struct Animation {
     center: [f64; 2],
@@ -192,6 +193,9 @@ impl Animation {
 
             // Aimming lines
             self.draw_aimming_lines(scale, con, g);
+
+            // Inner Hexagon
+            self.draw_inner_hexagon(scale, con, g);
         }
     }
 
@@ -265,6 +269,18 @@ impl Animation {
 
         for i in 0 .. 6 {
             line(LIGHT_GREEN_COLOR, AIMMING_LINE_RADIUS, lines[i], con.transform, g);
+        }
+    }
+
+    fn draw_inner_hexagon(&self, scale: f64, con: &Context, g: &mut G2d) {
+        let outter_hex_radius = ANIMATION_RADIUS * scale;
+        if outter_hex_radius <= POINT_SPACING * 0.4 {
+            let remain_time = self.elapsed_time / INNER_HEX_FLASH_PERIOD % 2.0;
+
+            if (remain_time > 1.0) {
+                let hex = Hexagon::new(self.center, POINT_SPACING * 0.4, LIGHT_GREEN_COLOR);
+                hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
+            }
         }
     }
 
