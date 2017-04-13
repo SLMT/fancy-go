@@ -112,6 +112,30 @@ impl Hexagon {
         }
     }
 
+    fn get_lower_right(&self) -> [f64; 2] {
+        self.points[0]
+    }
+
+    fn get_lower(&self) -> [f64; 2] {
+        self.points[1]
+    }
+
+    fn get_lower_left(&self) -> [f64; 2] {
+        self.points[2]
+    }
+
+    fn get_upper_left(&self) -> [f64; 2] {
+        self.points[3]
+    }
+
+    fn get_upper(&self) -> [f64; 2] {
+        self.points[4]
+    }
+
+    fn get_upper_right(&self) -> [f64; 2] {
+        self.points[5]
+    }
+
     fn draw_filled(&self, con: &Context, g: &mut G2d) {
         polygon(self.color, &self.points, con.transform, g);
     }
@@ -137,7 +161,7 @@ const ANIMATION_RADIUS: f64 = 300.0;
 const AIMMING_TIME: f64 = 0.3;
 const PHASE1_TIME: f64 = 1.0;
 const AIMMING_HEX_RADIUS: f64 = 0.5;
-const AIMMING_LINE_RADIUS: f64 = 2.0;
+const AIMMING_LINE_RADIUS: f64 = 1.5;
 const LIGHT_GREEN_COLOR: Color = [0.19, 0.98, 0.53, 1.0];
 
 struct Animation {
@@ -186,6 +210,8 @@ impl Animation {
         let r = ANIMATION_RADIUS;
         let c_x = self.center[0];
         let c_y = self.center[1];
+
+        // Draw draw the outter part
         let aim_line_r = r * 0.5;
         let mut to_center = aim_line_r * scale;
         if to_center < POINT_SPACING * 0.5 {
@@ -198,6 +224,46 @@ impl Animation {
             [c_x, c_y + aim_line_r, c_x, c_y + to_center]
         ];
         for i in 0 .. 4 {
+            line(LIGHT_GREEN_COLOR, AIMMING_LINE_RADIUS, lines[i], con.transform, g);
+        }
+
+        // Draw the center part
+        let h = Hexagon::new(self.center, to_center, LIGHT_GREEN_COLOR);
+
+        let lines = [
+            // Upper left
+            [h.get_upper()[0],
+            h.get_upper()[1],
+            (h.get_upper()[0] - h.get_upper_left()[0]) * 0.75 + h.get_upper_left()[0],
+            (h.get_upper()[1] - h.get_upper_left()[1]) * 0.75 + h.get_upper_left()[1]],
+            // Upper right
+            [h.get_upper()[0],
+            h.get_upper()[1],
+            (h.get_upper()[0] - h.get_upper_right()[0]) * 0.75 + h.get_upper_right()[0],
+            (h.get_upper()[1] - h.get_upper_right()[1]) * 0.75 + h.get_upper_right()[1]],
+            // Lower left
+            [h.get_lower()[0],
+            h.get_lower()[1],
+            (h.get_lower()[0] - h.get_lower_left()[0]) * 0.75 + h.get_lower_left()[0],
+            (h.get_lower()[1] - h.get_lower_left()[1]) * 0.75 + h.get_lower_left()[1]],
+            // Lower right
+            [h.get_lower()[0],
+            h.get_lower()[1],
+            (h.get_lower()[0] - h.get_lower_right()[0]) * 0.75 + h.get_lower_right()[0],
+            (h.get_lower()[1] - h.get_lower_right()[1]) * 0.75 + h.get_lower_right()[1]],
+            // Left
+            [h.get_lower_left()[0],
+            (h.get_upper_left()[1] - h.get_lower_left()[1]) * 0.25 + h.get_lower_left()[1],
+            h.get_lower_left()[0],
+            (h.get_upper_left()[1] - h.get_lower_left()[1]) * 0.75 + h.get_lower_left()[1]],
+            // Right
+            [h.get_lower_right()[0],
+            (h.get_upper_right()[1] - h.get_lower_right()[1]) * 0.25 + h.get_lower_right()[1],
+            h.get_lower_right()[0],
+            (h.get_upper_right()[1] - h.get_lower_right()[1]) * 0.75 + h.get_lower_right()[1]],
+        ];
+
+        for i in 0 .. 6 {
             line(LIGHT_GREEN_COLOR, AIMMING_LINE_RADIUS, lines[i], con.transform, g);
         }
     }
