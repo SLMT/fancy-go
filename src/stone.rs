@@ -157,13 +157,20 @@ impl Hexagon {
     }
 }
 
-const ANIMATION_RADIUS: f64 = 300.0;
+const ANIMATION_RADIUS: f64 = POINT_SPACING * 6.0;
 const AIMMING_TIME: f64 = 0.3;
 const PHASE1_TIME: f64 = 1.0;
+const PHASE2_START: f64 = 1.0;
+const PHASE2_AIMMING_TIME: f64 = 0.3;
+const PHASE2_END: f64 = 2.0;
 const AIMMING_HEX_RADIUS: f64 = 0.5;
 const AIMMING_LINE_RADIUS: f64 = 1.5;
 const LIGHT_GREEN_COLOR: Color = [0.19, 0.98, 0.53, 1.0];
 const INNER_HEX_FLASH_PERIOD: f64 = 0.1;
+
+const PHASE2_COLOR1: Color = [0.30, 0.41, 0.59, 0.75];
+const PHASE2_COLOR2: Color = [0.35, 0.60, 0.59, 0.75];
+const PHASE2_LINE_COLOR: Color = [1.0, 1.0, 1.0, 0.25];
 
 struct Animation {
     center: [f64; 2],
@@ -183,8 +190,8 @@ impl Animation {
     fn draw(&self, con: &Context, g: &mut G2d) {
         let et = self.elapsed_time;
 
-        // Draw aimming
-        if et < PHASE1_TIME {
+        // Phase 1 (Green line aimming)
+        if et < PHASE2_END {
             // Scale
             let scale = 1.0 - et / AIMMING_TIME;
 
@@ -197,10 +204,15 @@ impl Animation {
             // Inner Hexagon
             self.draw_inner_hexagon(scale, con, g);
         }
+
+        // Phase 2 (transparent hex)
+        if (et > PHASE2_START) && (et < PHASE2_END) {
+            self.draw_transparent_hex(con, g);
+        }
     }
 
     fn draw_outter_hexagon(&self, scale: f64, con: &Context, g: &mut G2d) {
-        let hex_radius = ANIMATION_RADIUS * scale;
+        let hex_radius = POINT_SPACING * 6.0 * scale;
         if hex_radius > POINT_SPACING {
             let hex = Hexagon::new(self.center, hex_radius, LIGHT_GREEN_COLOR);
             hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
@@ -211,15 +223,14 @@ impl Animation {
     }
 
     fn draw_aimming_lines(&self, scale: f64, con: &Context, g: &mut G2d) {
-        let r = ANIMATION_RADIUS;
         let c_x = self.center[0];
         let c_y = self.center[1];
 
         // Draw draw the outter part
-        let aim_line_r = r * 0.5;
+        let aim_line_r = POINT_SPACING * 5.0;
         let mut to_center = aim_line_r * scale;
-        if to_center < POINT_SPACING * 0.5 {
-            to_center = POINT_SPACING * 0.5;
+        if to_center < POINT_SPACING * 0.6 {
+            to_center = POINT_SPACING * 0.6;
         }
         let lines = [
             [c_x - aim_line_r, c_y, c_x - to_center, c_y],
@@ -274,19 +285,45 @@ impl Animation {
 
     fn draw_inner_hexagon(&self, scale: f64, con: &Context, g: &mut G2d) {
         let outter_hex_radius = ANIMATION_RADIUS * scale;
-        if outter_hex_radius <= POINT_SPACING * 0.4 {
+        if outter_hex_radius <= POINT_SPACING * 0.5 {
             let remain_time = self.elapsed_time / INNER_HEX_FLASH_PERIOD % 2.0;
 
-            if (remain_time > 1.0) {
-                let hex = Hexagon::new(self.center, POINT_SPACING * 0.4, LIGHT_GREEN_COLOR);
-                hex.draw_lined(AIMMING_HEX_RADIUS, con, g)
+            if remain_time > 1.0 {
+                let hex = Hexagon::new(self.center, POINT_SPACING * 0.5, LIGHT_GREEN_COLOR);
+                hex.draw_lined(AIMMING_LINE_RADIUS, con, g)
             }
         }
     }
 
+    fn draw_transparent_hex(&self, con: &Context, g: &mut G2d) {
+        let scale = (1.0 - (self.elapsed_time - PHASE2_START) / PHASE2_AIMMING_TIME).max(0.0);
+        let min_size = POINT_SPACING * 1.5;
+
+        // Level 1 (white thin, white thin)
+        let to_center = ((ANIMATION_RADIUS * 0.8 - min_size) * scale) + min_size;
+        let hex1 = Hexagon::new(self.center, to_center * 0.9, PHASE2_LINE_COLOR);
+        hex1.draw_lined(AIMMING_HEX_RADIUS, con, g);
+        let hex2 = Hexagon::new(self.center, to_center * 1.1, PHASE2_LINE_COLOR);
+        hex2.draw_lined(AIMMING_HEX_RADIUS, con, g);
+
+        // Level 2 ()
+        let to_center = ((ANIMATION_RADIUS - min_size) * scale) + min_size;
+        let hex1 = Hexagon::new(self.center, to_center, PHASE2_COLOR1);
+        hex1.draw_lined(AIMMING_HEX_RADIUS * 12.0, con, g);
+        let hex2 = Hexagon::new(self.center, to_center * 1.2, PHASE2_LINE_COLOR);
+        hex2.draw_lined(AIMMING_HEX_RADIUS, con, g);
+
+        // Level 3
+        let to_center = ((ANIMATION_RADIUS * 1.2 - min_size) * scale) + min_size;
+        let hex1 = Hexagon::new(self.center, to_center * 1.1, PHASE2_COLOR2);
+        hex1.draw_lined(AIMMING_HEX_RADIUS * 12.0, con, g);
+        let hex2 = Hexagon::new(self.center, to_center * 1.3, PHASE2_LINE_COLOR);
+        hex2.draw_lined(AIMMING_HEX_RADIUS, con, g);
+    }
+
     fn update(&mut self, delta: f64) {
         self.elapsed_time += delta;
-        if self.elapsed_time >= PHASE1_TIME {
+        if self.elapsed_time >= PHASE2_END {
             self.finished = true;
         }
     }
